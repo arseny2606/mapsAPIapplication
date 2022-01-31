@@ -21,7 +21,7 @@ class Map:
         self.mode = "map"
         self.map = get_map(f"ll={self.lon},{self.lat}&z={int(self.z)}", map_type=self.mode)
         self.buttons = pg.sprite.Group()
-        button.Button(self.buttons, (0, 0))
+        button.Button(self.buttons, (10, 460))
         threading.Thread(target=self.get_map).start()
         self.draw_map()
 
