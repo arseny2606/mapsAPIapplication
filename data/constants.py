@@ -1,7 +1,7 @@
 name = "Map"
 
 width = 600
-height = 600
+height = 800
 
 fps = 60
 

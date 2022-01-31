@@ -3,7 +3,7 @@ import math
 
 import pygame as pg
 
-from .. import setup
+from .. import setup, utils
 from .. import constants
 from ..components import button, inputbox, picture_button
 from ..map_utils import get_map, get_coords
@@ -20,12 +20,14 @@ class Map:
         self.running = True
         self.mode = "map"
         self.address = ""
+        self.cached_address = ""
         self.additional_params = ""
         self.map = get_map(f"ll={self.lon},{self.lat}&z={int(self.z)}", map_type=self.mode)
         self.buttons = pg.sprite.Group()
         self.inputboxes = pg.sprite.Group()
         picture_button.PictureButton(self.buttons, (10, 460))
-        self.search_input = inputbox.InputBox(self.inputboxes, "Введите адрес", pg.Rect(170, 480, 40, 10))
+        self.search_input = inputbox.InputBox(self.inputboxes, "Введите адрес",
+                                              pg.Rect(170, 480, 40, 10))
         button.Button(self.buttons, "Найти", pg.Rect(160, 500, 100, 30))
         button.Button(self.buttons, "Сброс", pg.Rect(160, 550, 100, 30))
         threading.Thread(target=self.get_map).start()
@@ -33,7 +35,8 @@ class Map:
 
     def get_map(self):
         while self.running:
-            self.map = get_map(f"ll={self.lon},{self.lat}&z={int(self.z)}{self.additional_params}", map_type=self.mode)
+            self.map = get_map(f"ll={self.lon},{self.lat}&z={int(self.z)}{self.additional_params}",
+                               map_type=self.mode)
 
     def draw_map(self):
         self.screen.blit(self.map, (0, 0))
@@ -79,12 +82,19 @@ class Map:
                 self.clear_object()
             elif state:
                 self.mode = state
+        utils.draw_text_left(self.cached_address, 30, "white", self.screen,
+                             pg.Rect(160, 600, 100, 30))
         return False
 
     def find_object(self):
         address_coords = get_coords(self.address)
+        self.cached_address = self.address
         self.lon, self.lat = address_coords
         self.additional_params = f"&pt={self.lon},{self.lat},org"
 
     def clear_object(self):
         self.additional_params = ""
+        self.cached_address = ""
+        self.address = ""
+        for i in self.inputboxes:
+            i.clear_text()

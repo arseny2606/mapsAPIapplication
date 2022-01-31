@@ -54,3 +54,10 @@ class InputBox(pg.sprite.Sprite):
             setup.screen = pg.display.set_mode((self.width + self.input_box.x,
                                                 setup.screen.get_height()))
         return self.label, self.text
+
+    def clear_text(self):
+        self.text = ""
+        txt_surface = self.font.render(self.text, True, self.color)
+        self.width = max(200, txt_surface.get_width() + 10)
+        if setup.screen.get_width() > constants.width:
+            setup.screen = pg.display.set_mode((constants.width, constants.height))
