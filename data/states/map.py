@@ -5,6 +5,7 @@ import pygame as pg
 
 from .. import setup
 from .. import constants
+from ..components import button
 from ..map_utils import get_map
 import threading
 
@@ -17,13 +18,16 @@ class Map:
         self.lon = constants.start_lon
         self.z = 17
         self.running = True
-        self.map = get_map(f"ll={self.lon},{self.lat}&z={int(self.z)}")
+        self.mode = "map"
+        self.map = get_map(f"ll={self.lon},{self.lat}&z={int(self.z)}", map_type=self.mode)
+        self.buttons = pg.sprite.Group()
+        button.Button(self.buttons, (0, 0))
         threading.Thread(target=self.get_map).start()
         self.draw_map()
 
     def get_map(self):
         while self.running:
-            self.map = get_map(f"ll={self.lon},{self.lat}&z={int(self.z)}")
+            self.map = get_map(f"ll={self.lon},{self.lat}&z={int(self.z)}", map_type=self.mode)
 
     def draw_map(self):
         self.screen.blit(self.map, (0, 0))
@@ -56,4 +60,9 @@ class Map:
         while self.lat < -85:
             self.lat += 170
         self.draw_map()
+        self.buttons.draw(self.screen)
+        for i in self.buttons:
+            state = i.update(clicks)
+            if state:
+                self.mode = state
         return False
