@@ -5,8 +5,8 @@ import pygame as pg
 
 from .. import setup, utils
 from .. import constants
-from ..components import button, inputbox, picture_button
-from ..map_utils import get_map, get_coords
+from ..components import button, inputbox, picture_button, checkbox
+from ..map_utils import get_map, get_coords, get
 import threading
 
 
@@ -23,13 +23,17 @@ class Map:
         self.cached_address = ""
         self.additional_params = ""
         self.map = get_map(f"ll={self.lon},{self.lat}&z={int(self.z)}", map_type=self.mode)
+        self.zip = False
+        self.index = ""
         self.buttons = pg.sprite.Group()
         self.inputboxes = pg.sprite.Group()
+        self.checkboxes = pg.sprite.Group()
         picture_button.PictureButton(self.buttons, (10, 460))
         self.search_input = inputbox.InputBox(self.inputboxes, "Введите адрес",
                                               pg.Rect(170, 480, 40, 10))
         button.Button(self.buttons, "Найти", pg.Rect(160, 500, 100, 30))
         button.Button(self.buttons, "Сброс", pg.Rect(160, 550, 100, 30))
+        checkbox.CheckBox(self.checkboxes, "Индекс", pg.Rect(160, 650, 100, 30))
         threading.Thread(target=self.get_map).start()
         self.draw_map()
 
@@ -70,6 +74,7 @@ class Map:
             self.lat += 170
         self.draw_map()
         self.buttons.draw(self.screen)
+        self.checkboxes.draw(self.screen)
         for i in self.inputboxes:
             state = i.update(clicks, keys, key_events)
             if state:
@@ -82,7 +87,19 @@ class Map:
                 self.clear_object()
             elif state:
                 self.mode = state
-        utils.draw_text_left(self.cached_address, 30, "white", self.screen,
+        for i in self.checkboxes:
+            state = i.update(clicks)
+            if state:
+                self.zip = state[1]
+                if self.zip:
+                    try:
+                        self.index = get(self.cached_address)["metaDataProperty"]["GeocoderMetaData"]["Address"]["postal_code"]
+                    except KeyError:
+                        self.index = ""
+                else:
+                    self.index = ""
+
+        utils.draw_text_left(self.cached_address + " " + self.index, 30, "white", self.screen,
                              pg.Rect(160, 600, 100, 30))
         return False
 
@@ -91,6 +108,7 @@ class Map:
         self.cached_address = self.address
         self.lon, self.lat = address_coords
         self.additional_params = f"&pt={self.lon},{self.lat},org"
+        self.index = get(self.cached_address)["metaDataProperty"]["GeocoderMetaData"]["Address"]["postal_code"]
 
     def clear_object(self):
         self.additional_params = ""
