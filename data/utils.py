@@ -14,3 +14,11 @@ def draw_text(text, size, color, surface, rect):
     textrect = textobj.get_rect()
     textrect.center = rect.center
     surface.blit(textobj, textrect)
+
+
+def draw_text_left(text, size, color, surface, rect):
+    font = pg.font.SysFont("", size)
+    textobj = font.render(text, True, color)
+    textrect = textobj.get_rect()
+    textrect.topleft = rect.topleft
+    surface.blit(textobj, textrect)
