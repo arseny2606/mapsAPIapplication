@@ -26,6 +26,7 @@ class Control:
         key_events = []
         for event in pg.event.get():
             if event.type == pg.QUIT:
+                self.state.update_event(event)
                 self.running = False
             if event.type == pg.KEYDOWN:
                 self.keys = pg.key.get_pressed()
@@ -40,7 +41,7 @@ class Control:
 
     def update(self, key_events):
         self.screen.fill((0, 0, 0))
-        state = self.state.update(self.keys, self.clicks)
+        state = self.state.update(self.keys, self.clicks, key_events)
         if state == "exit":
             self.running = False
         elif state == "back":
