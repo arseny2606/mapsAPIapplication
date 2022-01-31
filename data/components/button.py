@@ -18,11 +18,16 @@ class Button(pg.sprite.Sprite):
         self.rect.x = rect[0]
         self.rect.y = rect[1]
         self.mode = "map"
+        self.text = "map"
         self.time = pg.time.get_ticks()
         self.old_time = 0.0
 
     def update(self, clicks):
-        # utils.draw_text(self.text, 30, "white", self.screen, self.rect)
+        self.text = {"map": "map", "sat": "satellite", "sat,skl": "hybrid"}[self.mode]
+        txt_rect = self.rect.copy()
+        txt_rect.y += 70
+        utils.draw_text(self.text, 30, "white", self.screen, txt_rect)
+        pg.draw.rect(self.screen, "blue", self.rect, 2)
         self.time = pg.time.get_ticks()
         if self.rect.collidepoint(pg.mouse.get_pos()) and clicks[0] and self.old_time + 120 < self.time:
             if self.mode == "map":
