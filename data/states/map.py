@@ -98,9 +98,12 @@ class Map:
                         self.index = ""
                 else:
                     self.index = ""
-
-        utils.draw_text_left(self.cached_address + " " + self.index, 30, "white", self.screen,
-                             pg.Rect(160, 600, 100, 30))
+        if self.index:
+            utils.draw_text_left(f"{self.index}, {self.cached_address}", 30, "white", self.screen,
+                                 pg.Rect(160, 600, 100, 30))
+        else:
+            utils.draw_text_left(self.cached_address, 30, "white", self.screen,
+                                 pg.Rect(160, 600, 100, 30))
         return False
 
     def find_object(self):
