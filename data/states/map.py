@@ -15,27 +15,26 @@ class Map:
         rect = self.screen.get_rect()
         self.x = 0
         self.y = 0
-        self.loading = True
-        self.loader = 10
-        self.spn = 0.005
-        self.map = get_map(f"ll={constants.start_lon},{constants.start_lat}&spn={self.spn},{self.spn}")
+        self.z = 17
+        self.map = get_map(f"ll={constants.start_lon},{constants.start_lat}&z={int(self.z)}")
         threading.Thread(target=self.get_map).start()
         self.draw_map()
 
     def get_map(self):
         while True:
-            self.map = get_map(f"ll={constants.start_lon},{constants.start_lat}&spn={self.spn},{self.spn}")
+            self.map = get_map(f"ll={constants.start_lon},{constants.start_lat}&z={int(self.z)}")
 
     def draw_map(self):
         self.screen.blit(self.map, (0, 0))
 
     def update(self, keys, clicks):
         if keys[pg.K_PAGEUP]:
-            if self.spn + 0.005 <= 0.18:
-                self.spn += 0.005
+            if self.z + 0.05 <= 17:
+                self.z += 0.05
         if keys[pg.K_PAGEDOWN]:
-            if self.spn - 0.005 >= 0.005:
-                self.spn -= 0.005
-        print(self.spn)
+            if self.z - 0.05 >= 0.05:
+                self.z -= 0.05
+
+        print(self.z)
         self.draw_map()
         return False
