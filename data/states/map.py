@@ -27,6 +27,7 @@ class Map:
         picture_button.PictureButton(self.buttons, (10, 460))
         self.search_input = inputbox.InputBox(self.inputboxes, "Введите адрес", pg.Rect(170, 480, 40, 10))
         button.Button(self.buttons, "Найти", pg.Rect(160, 500, 100, 30))
+        button.Button(self.buttons, "Сброс", pg.Rect(160, 550, 100, 30))
         threading.Thread(target=self.get_map).start()
         self.draw_map()
 
@@ -74,6 +75,8 @@ class Map:
             state = i.update(clicks)
             if state == "Найти":
                 self.find_object()
+            elif state == "Сброс":
+                self.clear_object()
             elif state:
                 self.mode = state
         return False
@@ -82,3 +85,6 @@ class Map:
         address_coords = get_coords(self.address)
         self.lon, self.lat = address_coords
         self.additional_params = f"&pt={self.lon},{self.lat},org"
+
+    def clear_object(self):
+        self.additional_params = ""
