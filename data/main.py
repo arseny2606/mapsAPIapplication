@@ -53,8 +53,6 @@ class Control:
             self.state = self.states[state]
             if callable(self.state):
                 self.state = self.state()
-        if self.fps_text is not None:
-            self.screen.blit(self.fps_text, (10, 0))
         pg.display.update()
 
     def main(self):
