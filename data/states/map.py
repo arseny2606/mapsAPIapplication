@@ -98,7 +98,7 @@ class Map:
                         self.index = ""
                 else:
                     self.index = ""
-        if self.index:
+        if self.zip and self.cached_address:
             utils.draw_text_left(f"{self.index}, {self.cached_address}", 30, "white", self.screen,
                                  pg.Rect(160, 600, 100, 30))
         else:
