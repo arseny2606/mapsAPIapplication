@@ -19,7 +19,7 @@ def draw_text(text, size, color, surface, rect):
 
 
 def draw_text_left(text, size, color, surface, rect):
-    font = pg.font.SysFont("", size)
+    font = pg.font.SysFont("Calibri", size)
     textobj = font.render(text, True, color)
     textrect = textobj.get_rect()
     textrect.topleft = rect.topleft

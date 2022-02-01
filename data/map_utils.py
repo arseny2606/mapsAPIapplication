@@ -26,14 +26,19 @@ def find(ll, spn, text):
         "lang": "ru_RU",
         "ll": ll,
         "spn": spn,
-        "type": "biz"
+        "type": "biz",
+        "results": 1
     }
     response = requests.get(search_api_server, params=search_params)
     if not response:
         pass
     json_response = response.json()
-    organizations = json_response["features"]
-    return organizations
+    try:
+        organizations = json_response["features"][0]["properties"]["name"]
+        category = json_response["features"][0]["properties"]["CompanyMetaData"]["Categories"][0]["name"]
+    except IndexError:
+        return ""
+    return organizations, category
 
 
 def get(address):
@@ -46,8 +51,11 @@ def get(address):
     if not response:
         pass
     json_response = response.json()
-    features = json_response["response"]["GeoObjectCollection"]["featureMember"]
-    return features[0]["GeoObject"]
+    try:
+        features = json_response["response"]["GeoObjectCollection"]["featureMember"]
+        return features[0]["GeoObject"]
+    except KeyError:
+        return ""
 
 
 def get_coords(address):
@@ -59,7 +67,10 @@ def get_coords(address):
 
 def get_spn(address):
     toponym = get(address)
-    toponym_coodrinates = toponym["Point"]["pos"]
+    try:
+        toponym_coodrinates = toponym["Point"]["pos"]
+    except TypeError:
+        return ""
     toponym_longitude, toponym_lattitude = toponym_coodrinates.split(" ")
     ll = ",".join([toponym_longitude, toponym_lattitude])
     envelope = toponym["boundedBy"]["Envelope"]
@@ -96,11 +107,12 @@ def get_address(point):
         "geocode": ll,
         "format": "json"}
     response = requests.get(geocoder_request, params=geocoder_params)
-    if not response:
-        pass
     json_response = response.json()
-    features = json_response["response"]["GeoObjectCollection"]["featureMember"]
-    return features[0]["GeoObject"]["metaDataProperty"]["GeocoderMetaData"]["Address"]["formatted"]
+    try:
+        features = json_response["response"]["GeoObjectCollection"]["featureMember"]
+        return features[0]["GeoObject"]["metaDataProperty"]["GeocoderMetaData"]["Address"]["formatted"]
+    except IndexError:
+        return ""
 
 
 def screen_to_geo(self, pos):
