@@ -6,7 +6,7 @@ import pygame as pg
 from .. import setup, utils
 from .. import constants
 from ..components import button, inputbox, picture_button, checkbox
-from ..map_utils import get_map, get_coords, get, screen_to_geo, get_address
+from ..map_utils import get_map, get_coords, get, screen_to_geo, get_address, find, get_spn
 import threading
 
 
@@ -39,8 +39,14 @@ class Map:
 
     def get_map(self):
         while self.running:
-            self.map = get_map(f"ll={self.lon},{self.lat}&z={int(self.z)}{self.additional_params}",
-                               map_type=self.mode)
+            try:
+                self.map = get_map(f"ll={self.lon},{self.lat}&z={int(self.z)}{self.additional_params}",
+                                   map_type=self.mode)
+            except Exception:
+                self.additional_params = ""
+                self.map = get_map(
+                    f"ll={self.lon},{self.lat}&z={int(self.z)}{self.additional_params}",
+                    map_type=self.mode)
 
     def draw_map(self):
         self.screen.blit(self.map, (0, 0))
@@ -110,17 +116,21 @@ class Map:
         if clicks[0]:
             mouse_pos = pg.mouse.get_pos()
             if mouse_pos[0] <= constants.map_width and mouse_pos[1] <= constants.map_height:
-                self.additional_params = ""
-                self.cached_address = ""
-                geo_pos = screen_to_geo(self, mouse_pos)
-                self.additional_params = f"&pt={geo_pos[0]},{geo_pos[1]},org"
-                address = get_address(geo_pos)
-                self.cached_address = address
                 try:
-                    self.index = get(self.cached_address)["metaDataProperty"]["GeocoderMetaData"] \
-                        ["Address"]["postal_code"]
+                    self.additional_params = ""
+                    self.cached_address = ""
+                    geo_pos = screen_to_geo(self, mouse_pos)
+                    self.additional_params = f"&pt={geo_pos[0]},{geo_pos[1]},org"
+                    address = get_address(geo_pos)
+                    self.cached_address = address
+                    try:
+                        self.index = get(self.cached_address)["metaDataProperty"]["GeocoderMetaData"] \
+                            ["Address"]["postal_code"]
+                    except Exception:
+                        self.index = ""
                 except Exception:
-                    self.index = ""
+                    self.additional_params = ""
+                    self.cached_address = ""
         return False
 
     def find_object(self):
