@@ -1,6 +1,8 @@
 import pygame as pg
 import os
 
+from data import setup
+
 
 def load_image(name):
     fullname = os.path.join('resources/textures', name)
@@ -22,3 +24,6 @@ def draw_text_left(text, size, color, surface, rect):
     textrect = textobj.get_rect()
     textrect.topleft = rect.topleft
     surface.blit(textobj, textrect)
+    if textrect.width + textrect.x > setup.screen.get_width():
+        setup.screen = pg.display.set_mode((textrect.width + textrect.x,
+                                            setup.screen.get_height()))

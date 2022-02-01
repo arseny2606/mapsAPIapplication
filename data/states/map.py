@@ -6,7 +6,7 @@ import pygame as pg
 from .. import setup, utils
 from .. import constants
 from ..components import button, inputbox, picture_button, checkbox
-from ..map_utils import get_map, get_coords, get
+from ..map_utils import get_map, get_coords, get, screen_to_geo, get_address
 import threading
 
 
@@ -93,17 +93,34 @@ class Map:
                 self.zip = state[1]
                 if self.zip:
                     try:
-                        self.index = get(self.cached_address)["metaDataProperty"]["GeocoderMetaData"]["Address"]["postal_code"]
+                        self.index = \
+                            get(self.cached_address)["metaDataProperty"]["GeocoderMetaData"][
+                                "Address"][
+                                "postal_code"]
                     except KeyError:
                         self.index = ""
                 else:
                     self.index = ""
-        if self.zip and self.cached_address:
+        if self.zip and self.cached_address and self.index:
             utils.draw_text_left(f"{self.index}, {self.cached_address}", 30, "white", self.screen,
                                  pg.Rect(160, 600, 100, 30))
         else:
             utils.draw_text_left(self.cached_address, 30, "white", self.screen,
                                  pg.Rect(160, 600, 100, 30))
+        if clicks[0]:
+            mouse_pos = pg.mouse.get_pos()
+            if mouse_pos[0] <= constants.map_width and mouse_pos[1] <= constants.map_height:
+                self.additional_params = ""
+                self.cached_address = ""
+                geo_pos = screen_to_geo(self, mouse_pos)
+                self.additional_params = f"&pt={geo_pos[0]},{geo_pos[1]},org"
+                address = get_address(geo_pos)
+                self.cached_address = address
+                try:
+                    self.index = get(self.cached_address)["metaDataProperty"]["GeocoderMetaData"] \
+                        ["Address"]["postal_code"]
+                except Exception:
+                    self.index = ""
         return False
 
     def find_object(self):
@@ -111,7 +128,8 @@ class Map:
         self.cached_address = self.address
         self.lon, self.lat = address_coords
         self.additional_params = f"&pt={self.lon},{self.lat},org"
-        self.index = get(self.cached_address)["metaDataProperty"]["GeocoderMetaData"]["Address"]["postal_code"]
+        self.index = get(self.cached_address)["metaDataProperty"]["GeocoderMetaData"]["Address"][
+            "postal_code"]
 
     def clear_object(self):
         self.additional_params = ""
