@@ -36,9 +36,10 @@ def find(ll, spn, text):
     try:
         organizations = json_response["features"][0]["properties"]["name"]
         category = json_response["features"][0]["properties"]["CompanyMetaData"]["Categories"][0]["name"]
+        cords = json_response["features"][0]["geometry"]["coordinates"]
     except IndexError:
         return ""
-    return organizations, category
+    return organizations, category, cords
 
 
 def get(address):
@@ -122,3 +123,19 @@ def screen_to_geo(self, pos):
     ly = self.lat + dy * constants.coord_to_geo_y * math.cos(math.radians(self.lat)) * \
          math.pow(2, 15 - self.z)
     return lx, ly
+
+
+def lonlat_distance(a, b):
+    degree_to_meters_factor = 111 * 1000
+    a_lon, a_lat = a
+    b_lon, b_lat = b
+
+    radians_lattitude = math.radians((a_lat + b_lat) / 2.)
+    lat_lon_factor = math.cos(radians_lattitude)
+
+    dx = abs(a_lon - b_lon) * degree_to_meters_factor * lat_lon_factor
+    dy = abs(a_lat - b_lat) * degree_to_meters_factor
+
+    distance = math.sqrt(dx * dx + dy * dy)
+
+    return distance
