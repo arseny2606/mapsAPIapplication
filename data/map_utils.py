@@ -1,8 +1,10 @@
+import math
 from io import BytesIO
 
 import pygame
 import requests
 
+from data import constants
 from data.constants import search_key, geocoder_key
 
 
@@ -84,3 +86,27 @@ def get_near(point, kind):
     json_response = response.json()
     features = json_response["response"]["GeoObjectCollection"]["featureMember"]
     return features[0]["GeoObject"]["name"]
+
+
+def get_address(point):
+    ll = f"{point[0]},{point[1]}"
+    geocoder_request = f"https://geocode-maps.yandex.ru/1.x/"
+    geocoder_params = {
+        "apikey": geocoder_key,
+        "geocode": ll,
+        "format": "json"}
+    response = requests.get(geocoder_request, params=geocoder_params)
+    if not response:
+        pass
+    json_response = response.json()
+    features = json_response["response"]["GeoObjectCollection"]["featureMember"]
+    return features[0]["GeoObject"]["metaDataProperty"]["GeocoderMetaData"]["Address"]["formatted"]
+
+
+def screen_to_geo(self, pos):
+    dy = 225 - pos[1]
+    dx = pos[0] - 300
+    lx = self.lon + dx * constants.coord_to_geo_x * math.pow(2, 15 - self.z)
+    ly = self.lat + dy * constants.coord_to_geo_y * math.cos(math.radians(self.lat)) * \
+         math.pow(2, 15 - self.z)
+    return lx, ly
