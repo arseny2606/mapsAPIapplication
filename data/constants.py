@@ -4,7 +4,7 @@ width = 600
 height = 800
 
 map_width = 600
-map_height = 400
+map_height = 450
 
 fps = 60
 

@@ -6,7 +6,7 @@ import pygame as pg
 from .. import setup, utils
 from .. import constants
 from ..components import button, inputbox, picture_button, checkbox
-from ..map_utils import get_map, get_coords, get, screen_to_geo, get_address, find, get_spn
+from ..map_utils import get_map, get_coords, get, screen_to_geo, get_address, find, get_spn, lonlat_distance
 import threading
 
 
@@ -160,11 +160,12 @@ class Map:
                 address = get_address(geo_pos)
                 spn = get_spn(address)
                 try:
-                    address, category = find(ll, spn[1], address)
+                    address, category, cords = find(ll, spn[1], address)
                 except IndexError:
                     address = ""
                     category = ""
-                if address and category:
+                    cords = (0, 0)
+                if address and category and lonlat_distance(geo_pos, cords) <= 50:
                     self.cached_address = f"{address}, {category.lower()}"
                 else:
                     self.cached_address = ""
