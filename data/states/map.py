@@ -131,6 +131,48 @@ class Map:
                 except Exception:
                     self.additional_params = ""
                     self.cached_address = ""
+        if clicks[2]:
+            mouse_pos = pg.mouse.get_pos()
+            if mouse_pos[0] <= constants.map_width and mouse_pos[1] <= constants.map_height:
+                self.additional_params = ""
+                self.cached_address = ""
+                geo_pos = screen_to_geo(self, mouse_pos)
+                ll = f"{geo_pos[0]},{geo_pos[1]}"
+                address = get_address(geo_pos)
+                spn = get_spn(address)
+                try:
+                    address = find(ll, spn[1], address)
+                except IndexError:
+                    address = ""
+                self.cached_address = address
+                try:
+                    self.index = get(self.cached_address)["metaDataProperty"]["GeocoderMetaData"] \
+                        ["Address"]["postal_code"]
+                except Exception:
+                    self.index = ""
+        if clicks[2]:
+            mouse_pos = pg.mouse.get_pos()
+            if mouse_pos[0] <= constants.map_width and mouse_pos[1] <= constants.map_height:
+                self.additional_params = ""
+                self.cached_address = ""
+                geo_pos = screen_to_geo(self, mouse_pos)
+                ll = f"{geo_pos[0]},{geo_pos[1]}"
+                address = get_address(geo_pos)
+                spn = get_spn(address)
+                try:
+                    address, category = find(ll, spn[1], address)
+                except IndexError:
+                    address = ""
+                    category = ""
+                if address and category:
+                    self.cached_address = f"{address}, {category.lower()}"
+                else:
+                    self.cached_address = ""
+                try:
+                    self.index = get(self.cached_address)["metaDataProperty"]["GeocoderMetaData"] \
+                        ["Address"]["postal_code"]
+                except Exception:
+                    self.index = ""
         return False
 
     def find_object(self):
