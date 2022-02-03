@@ -181,8 +181,11 @@ class Map:
         self.cached_address = self.address
         self.lon, self.lat = address_coords
         self.additional_params = f"&pt={self.lon},{self.lat},org"
-        self.index = get(self.cached_address)["metaDataProperty"]["GeocoderMetaData"]["Address"][
-            "postal_code"]
+        try:
+            self.index = get(self.cached_address)["metaDataProperty"]["GeocoderMetaData"] \
+                ["Address"]["postal_code"]
+        except Exception:
+            self.index = ""
 
     def clear_object(self):
         self.additional_params = ""
